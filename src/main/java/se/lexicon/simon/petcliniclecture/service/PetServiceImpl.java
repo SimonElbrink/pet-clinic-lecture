@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.lexicon.simon.petcliniclecture.entity.Pet;
+import se.lexicon.simon.petcliniclecture.exception.ResourceNotFoundException;
 import se.lexicon.simon.petcliniclecture.repository.OwnerRepository;
 import se.lexicon.simon.petcliniclecture.repository.PetRepository;
 import se.lexicon.simon.petcliniclecture.repository.PetTypeRepository;
@@ -30,14 +31,14 @@ public class PetServiceImpl implements PetService{
     public List<Pet> findAll() {
         List<Pet> foundItems = petRepository.findAll();
 
-        if (foundItems.isEmpty()) throw new RuntimeException("Could not find any pets.");
+        if (foundItems.isEmpty()) throw new ResourceNotFoundException("Could not find any pets.");
 
         return foundItems;
     }
 
     @Override
     public Pet findById(String petId) {
-        return petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Could not find any with this ID: " + petId));
+        return petRepository.findById(petId).orElseThrow(() -> new ResourceNotFoundException("Could not find any with this ID: " + petId));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class PetServiceImpl implements PetService{
 
         List<Pet> foundItems = petRepository.findAllByNameContainsIgnoreCase(petName);
 
-        if (foundItems.isEmpty()) throw new RuntimeException("Could not find any pets with the name of: " + petName);
+        if (foundItems.isEmpty()) throw new ResourceNotFoundException("Could not find any pets with the name of: " + petName);
 
         return foundItems;
     }

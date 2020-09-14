@@ -47,7 +47,7 @@ public class PetControllerImpl implements PetController{
                 return ResponseEntity.ok(petService.findAll());
 
             default:
-                return ResponseEntity.badRequest().body("Not A Valid Type: " + type);
+                throw new IllegalArgumentException("Not a valid type: " + type);
 
         }
     }
