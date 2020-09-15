@@ -1,11 +1,12 @@
 package se.lexicon.simon.petcliniclecture.exception;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -17,6 +18,8 @@ import java.util.List;
 @RestControllerAdvice
 public class MyExceptionHandler extends ResponseEntityExceptionHandler {
 
+
+    public static final String VALIDATIONS_FAILED = "Validation Failed: One or more validations failed";
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<MyExceptionResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request){
@@ -56,27 +59,25 @@ public class MyExceptionHandler extends ResponseEntityExceptionHandler {
             violations.add(new Violation(fieldError.getField(),fieldError.getDefaultMessage()));
         }
 
+        for (ObjectError error : ex.getBindingResult().getGlobalErrors()) {
+            violations.add(new Violation(error.getObjectName(), error.getDefaultMessage()));
+        }
+
         return new ValidationErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
                 status.name(),
-                "One Or Serveral Validations failed!",
+                VALIDATIONS_FAILED,
                 request.getDescription(false),
                 violations
         );
 
     }
 
-   // @ResponseStatus(HttpStatus.BAD_REQUEST)
-   // @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request){
-
-        return ResponseEntity.badRequest().body(buildResponseBody(ex, request, HttpStatus.BAD_REQUEST));
-
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return handleExceptionInternal(ex, buildResponseBody(ex, request, status), headers, status, request);
     }
-
-
-
 
 
 }
