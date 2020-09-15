@@ -3,7 +3,9 @@ package se.lexicon.simon.petcliniclecture.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.lexicon.simon.petcliniclecture.entity.Owner;
 import se.lexicon.simon.petcliniclecture.entity.Pet;
+import se.lexicon.simon.petcliniclecture.entity.PetType;
 import se.lexicon.simon.petcliniclecture.exception.ResourceNotFoundException;
 import se.lexicon.simon.petcliniclecture.repository.OwnerRepository;
 import se.lexicon.simon.petcliniclecture.repository.PetRepository;
@@ -55,16 +57,36 @@ public class PetServiceImpl implements PetService{
     @Transactional
     public Pet save(Pet pet) {
 
-         if (pet.getPetId() != "" && pet.getPetId() != null) throw new IllegalArgumentException("Could NOT create a Pet Where ID is specified");
+         if (pet.getPetId().equals("") && pet.getPetId() != null) throw new IllegalArgumentException("Could NOT create a Pet Where ID is specified");
+
+        Owner owner = null;
+        PetType petType = null;
+
+
+         if (pet.getOwner() != null) {
+             owner = ownerRepository.findById(pet.getOwner().getOwnerId()).orElseThrow(()-> new ResourceNotFoundException("Invalid Owner"));
+         }
+
+         if (pet.getPetType().getTypeId() == null){
+             petType = petTypeRepository.save(pet.getPetType());
+         }else{
+             petType= petTypeRepository.findById(pet.getPetType().getTypeId()).orElseThrow(() -> new ResourceNotFoundException("Invalid PetType ID"));
+         }
+
 
         Pet toSave = new Pet(
                 pet.getName(),
                 pet.getBirthDate() == null ? LocalDate.now() : pet.getBirthDate(),
-                pet.getPetType(),
-                pet.getOwner()
+                petType,
+                owner
         );
 
-        return petRepository.save(toSave);
+        toSave = petRepository.save(toSave);
+
+         toSave.setOwner(owner);
+         toSave.setPetType(petType);
+
+        return toSave;
     }
 
     @Override

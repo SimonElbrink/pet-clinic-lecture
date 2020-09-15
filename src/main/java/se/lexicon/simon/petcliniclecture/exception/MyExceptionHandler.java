@@ -2,12 +2,17 @@ package se.lexicon.simon.petcliniclecture.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class MyExceptionHandler extends ResponseEntityExceptionHandler {
@@ -39,6 +44,34 @@ public class MyExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+    }
+
+
+    public ValidationErrorResponse buildResponseBody(MethodArgumentNotValidException ex, WebRequest request, HttpStatus status){
+
+        List<Violation> violations = new ArrayList<>();
+
+        for (FieldError fieldError: ex.getBindingResult().getFieldErrors()) {
+            violations.add(new Violation(fieldError.getField(),fieldError.getDefaultMessage()));
+        }
+
+        return new ValidationErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.name(),
+                "One Or Serveral Validations failed!",
+                request.getDescription(false),
+                violations
+        );
+
+    }
+
+   // @ResponseStatus(HttpStatus.BAD_REQUEST)
+   // @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request){
+
+        return ResponseEntity.badRequest().body(buildResponseBody(ex, request, HttpStatus.BAD_REQUEST));
 
     }
 
