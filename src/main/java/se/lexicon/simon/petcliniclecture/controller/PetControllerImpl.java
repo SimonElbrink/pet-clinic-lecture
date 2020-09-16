@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import se.lexicon.simon.petcliniclecture.dto.PetFormDto;
 import se.lexicon.simon.petcliniclecture.entity.Pet;
+import se.lexicon.simon.petcliniclecture.service.MyConversionService;
 import se.lexicon.simon.petcliniclecture.service.PetService;
 
 @RestController
@@ -15,10 +17,12 @@ public class PetControllerImpl implements PetController{
     public static final String PET_NAME = "petname";
 
     private PetService petService;
+    private MyConversionService myConversionService;
 
     @Autowired
-    public PetControllerImpl(PetService petService) {
+    public PetControllerImpl(PetService petService, MyConversionService myConversionService) {
         this.petService = petService;
+        this.myConversionService = myConversionService;
     }
 
 
@@ -52,13 +56,17 @@ public class PetControllerImpl implements PetController{
         }
     }
 
+    // TODO - Convert to DTO
+
     @Override
     @PostMapping("/api/pets")
-    public ResponseEntity<Pet> save(@RequestBody Pet pet) {
+    public ResponseEntity<Pet> save(@RequestBody PetFormDto pet) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(petService.save(pet));
+        return ResponseEntity.status(HttpStatus.CREATED).body(petService.save(myConversionService.convertDTOtoPet(pet)));
     }
 
+    // TODO - implement
+    // TODO - Convert to DTO
     @Override
     public ResponseEntity<Pet> update(String id, Pet updated) {
         return null;

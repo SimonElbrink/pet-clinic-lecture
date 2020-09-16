@@ -57,7 +57,7 @@ public class PetServiceImpl implements PetService{
     @Transactional
     public Pet save(Pet pet) {
 
-         if (pet.getPetId().equals("") && pet.getPetId() != null) throw new IllegalArgumentException("Could NOT create a Pet Where ID is specified");
+         if (!pet.getPetId().equals("") && pet.getPetId() != null) throw new IllegalArgumentException("Could NOT create a Pet Where ID is specified");
 
         Owner owner = null;
         PetType petType = null;

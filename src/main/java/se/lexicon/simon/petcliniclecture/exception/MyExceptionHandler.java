@@ -74,6 +74,16 @@ public class MyExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
+    /**
+     * Customize the response for MethodArgumentNotValidException.
+     * <p>This method delegates to {@link #handleExceptionInternal}.
+     *
+     * @param ex      the exception
+     * @param headers the headers to be written to the response
+     * @param status  the selected response status
+     * @param request the current request
+     * @return a {@code ResponseEntity} instance
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleExceptionInternal(ex, buildResponseBody(ex, request, status), headers, status, request);

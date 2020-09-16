@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
-public class OwnerFromDto {
+public class OwnerFormDto {
     @Null(message = "ownerId should not be present.")
     private String ownerId;
 
@@ -22,10 +22,10 @@ public class OwnerFromDto {
     @NotBlank (message = "You need to Provide a Phone number")
     private String telephone;
 
-    public OwnerFromDto() {
+    public OwnerFormDto() {
     }
 
-    public OwnerFromDto(String ownerId, String firstName, String lastName, String address, String telephone) {
+    public OwnerFormDto(String ownerId, String firstName, String lastName, String address, String telephone) {
         this.ownerId = ownerId;
         this.firstName = firstName;
         this.lastName = lastName;
